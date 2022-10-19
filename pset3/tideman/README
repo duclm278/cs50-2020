@@ -1,0 +1,43 @@
+- Ở cái tideman này mình đã phải làm 4 versions tất cả (tideman0 là starter code).
+- Các versions này theo thứ tự là: tideman1.c -> tideman2.c -> tideman3.c -> tideman.c.
+- Các versions này mình đều cải thiện function lock_pairs.
+
+    + tideman1.c:
+      Ở version này mình đã mường tượng được phương hướng.
+      Đó là đuôi thằng này là đầu thằng kia (loser -> ... -> [winner -> loser] -> ... -> winner)
+                                                             ^ cặp gốc
+
+      Khi tìm được một thằng thỏa mãn (có thể nối tiếp và có "locked == true") thì mình sẽ tiếp tục tìm thêm thằng nữa có tính chất tương tự, reset vòng lặp.
+      Đến khi nào mình tìm được một thằng nối tiếp lại thằng ban đầu thì sẽ xuất hiện cycle.
+      Tuy vậy hạn chế của vòng for trong tideman1.c là dòng "j = -1".
+      "j = -1" rồi "j++" sẽ reset vòng lặp trước.
+      Việc này sẽ "xóa" và không cho vòng lặp trước đó tiếp tục tìm các thằng khác thỏa mãn (có thể nối tiếp và có "locked == true").
+      Với số lượng cacdidates và voters đủ lớn thì từ một người có thể có nhiều nhánh nối tiếp khác nhau (một người có thể dẫn đến nhiều cycles).
+
+    + tideman2.c:
+      Đã khắc phục tideman1.c.
+      Ở version này mình dùng recursion là check_cycles_1 và check_cycles_2.
+      Function check_cycles_1 xuất phát từ "pairs[current].loser" và có cycle nếu kết thúc "pairs[i].loser == pairs[original].winner".
+      Nôm na là [winer -> loser] -> ... -> winner.
+                ^ cặp gốc
+
+      Function check_cycles_2 thì ngược lại.
+      Function check_cycles_2 xuất phát từ "pairs[current].winner" và có cycle nếu kết thúc "pairs[i].winner == pairs[original].loser".
+      Nôm na là loser -> ... -> [winer -> loser]
+                                ^ cặp gốc
+
+      Không còn tình trạng vòng lặp trước bị "xóa" như tideman1.c,từ đó phủ được hết các khả năng.
+      Tuy vậy hạn chế của tideman2.c là dùng thêm cả check_cycles_2.
+      Thực tế không cần kiểm tra về cả hai phía.
+      Nếu thêm một edge mà tạo cycle với các cái trước đó (có "locked == true") thì chỉ cần kiểm tra về 1 phía là đủ.
+
+    + tideman3.c:
+      Đã khắc phục tideman2.c.
+      Tuy nhiên chưa tối ưu int check_cycles(int check_cycles(int original, int current, int cycles).
+      Vẫn còn phải khai báo biến original, current, cycles ở trong looked_pairs.
+
+
+    + tideman.c:
+      Đã khắc phục tideman3.c.
+      Đã tối ưu int check_cycles(int check_cycles(int original, int current, int cycles) -> bool have_cycle(int pair_index).
+      Khá là hài lòng.
